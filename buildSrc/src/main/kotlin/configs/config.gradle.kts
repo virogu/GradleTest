@@ -1,3 +1,5 @@
+package configs
+
 import java.io.ByteArrayOutputStream
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
@@ -42,6 +44,7 @@ val buildVersion: String = "3.${buildFormatDate}_${gitCommitShortid}"
 //project.extra["myPackageVersion"] = myPackageVersion
 //project.extra["buildVersion"] = buildVersion
 
+val appName = "app"
 tasks.create("packageMsiAndRename") {
     group = "compose desktop"
     //dependsOn("packageMsi")
@@ -50,7 +53,7 @@ tasks.create("packageMsiAndRename") {
         project.rootDir.resolve("out/packages/main/msi").listFiles()?.filter {
             it.name.endsWith(".msi")
         }?.forEach {
-            val newName = "app-3.${buildFormatDate}(${gitCommitCount})_${gitCommitShortid}.msi"
+            val newName = "${appName}-3.${buildFormatDate}(${gitCommitCount})_${gitCommitShortid}.msi"
             println("rename [${it.name}] to [$newName]")
             it.renameTo(File(it.parentFile, newName))
         }
@@ -58,18 +61,19 @@ tasks.create("packageMsiAndRename") {
 }
 
 task("zipPackageFiles", Zip::class) {
+    val appInstalledPath = "C:\\Program Files\\app"
     rootProject.rootDir.resolve("out/zip").apply {
         println("clear path:[${this.path}]")
         this.deleteRecursively()
     }
     group = "compose desktop"
-    from("C:\\Program Files\\app") {
+    from(appInstalledPath) {
         //include {
         //    println("found file [${it.path}]")
         //    true
         //}
     }
-    archiveBaseName.set("app")
+    archiveBaseName.set(appName)
     archiveAppendix.set("3.${buildFormatDate}(${gitCommitCount})")
     archiveVersion.set(gitCommitShortid)
     archiveExtension.set("zip")
